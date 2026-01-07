@@ -8,11 +8,15 @@ import (
 
 func main() {
 
-	prs := cli.InsertParameters()
+	prs, err := cli.InsertParameters()
+
+	if(err != nil){
+    panic(err)
+	}
 
 	fmt.Println("URL:", prs.URL)
 	fmt.Println("Requests:", prs.Requests)
-	fmt.Println("Concurrencies:", prs.Concurrencies)
+	fmt.Println("Concurrency:", prs.Concurrency)
 
 	fmt.Println("Server is starting...")
 }
