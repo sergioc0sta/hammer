@@ -8,8 +8,20 @@ import (
 	"github.com/sergioc0sta/hammer/internal/infra/handler"
 )
 
-func main() {
+func Worker(numberRequests int, url string, wg *sync.WaitGroup, cha chan int) {
+	soma := 0
+	defer wg.Done()
 
+	for soma < numberRequests {
+		handler.ServerRequestHandler(url)
+		soma++
+	}
+	cha <- soma
+}
+
+func main() {
+	cha := make(chan int, 1)
+	totalRequests := 0
 	var wg sync.WaitGroup
 	prs, err := cli.InsertParameters()
 
@@ -22,18 +34,20 @@ func main() {
 	fmt.Println("Concurrency:", prs.Concurrency)
 	fmt.Println("Server is starting...")
 
+	wg.Add(prs.Concurrency)
 	for i := 0; i < prs.Concurrency; i++ {
-
-		wg.Add(1)
-		go func(numberRequests int) {
-			defer wg.Done()
-
-			for i := 0; i < numberRequests; i++ {
-				handler.ServerRequestHandler(prs.URL)
-
-			}
-		}(prs.Requests)
+		go Worker(prs.Requests, prs.URL, &wg, cha)
 	}
 
-	wg.Wait()
+	go func() {
+		wg.Wait()
+		close(cha)
+	}()
+
+	for v := range cha {
+		totalRequests += v
+	}
+
+	fmt.Println("Total requests:", totalRequests)
+
 }
