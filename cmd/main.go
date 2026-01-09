@@ -5,22 +5,11 @@ import (
 	"sync"
 
 	"github.com/sergioc0sta/hammer/internal/cli"
-	"github.com/sergioc0sta/hammer/internal/infra/handler"
+	"github.com/sergioc0sta/hammer/internal/dto"
+	"github.com/sergioc0sta/hammer/internal/infra/worker"
 )
 
-func Worker(numberRequests int, url string, wg *sync.WaitGroup, cha chan int) {
-	soma := 0
-	defer wg.Done()
-
-	for soma < numberRequests {
-		handler.ServerRequestHandler(url)
-		soma++
-	}
-	cha <- soma
-}
-
 func main() {
-	cha := make(chan int, 1)
 	totalRequests := 0
 	var wg sync.WaitGroup
 	prs, err := cli.InsertParameters()
@@ -29,6 +18,7 @@ func main() {
 		panic(err)
 	}
 
+	cha := make(chan dto.WorkerResult, prs.Concurrency)
 	fmt.Println("URL:", prs.URL)
 	fmt.Println("Requests:", prs.Requests)
 	fmt.Println("Concurrency:", prs.Concurrency)
@@ -36,7 +26,7 @@ func main() {
 
 	wg.Add(prs.Concurrency)
 	for i := 0; i < prs.Concurrency; i++ {
-		go Worker(prs.Requests, prs.URL, &wg, cha)
+		go worker.Worker(prs.Requests, prs.URL, &wg, cha)
 	}
 
 	go func() {
@@ -45,7 +35,10 @@ func main() {
 	}()
 
 	for v := range cha {
-		totalRequests += v
+		for _, result := range v.Results {
+			fmt.Printf("Status: %d - Count: %d\n", result.Status, result.Count)
+			totalRequests += result.Count
+		}
 	}
 
 	fmt.Println("Total requests:", totalRequests)
