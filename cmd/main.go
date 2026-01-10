@@ -8,6 +8,7 @@ import (
 	"github.com/sergioc0sta/hammer/internal/dto"
 	"github.com/sergioc0sta/hammer/internal/infra/worker"
 	"github.com/sergioc0sta/hammer/internal/infra/http"
+	"github.com/sergioc0sta/hammer/internal/infra/timer"
 )
 
 func main() {
@@ -26,6 +27,7 @@ func main() {
 	fmt.Println("Concurrency:", prs.Concurrency)
 	fmt.Println("Server is starting...")
 
+	timer := timer.NewTimer()
 	wg.Add(prs.Concurrency)
 	for i := 0; i < prs.Concurrency; i++ {
 		go worker.Worker(prs.Requests, prs.URL, &wg, cha, httpClient)
@@ -42,6 +44,8 @@ func main() {
 			totalRequests += result.Count
 		}
 	}
+	timer.TimeClose()
+	fmt.Printf("Total time taken: %s\n", timer.Duration)
 
 	fmt.Println("Total requests:", totalRequests)
 
