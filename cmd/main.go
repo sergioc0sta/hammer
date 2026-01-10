@@ -7,6 +7,7 @@ import (
 	"github.com/sergioc0sta/hammer/internal/cli"
 	"github.com/sergioc0sta/hammer/internal/dto"
 	"github.com/sergioc0sta/hammer/internal/infra/worker"
+	"github.com/sergioc0sta/hammer/internal/infra/http"
 )
 
 func main() {
@@ -19,6 +20,7 @@ func main() {
 	}
 
 	cha := make(chan dto.WorkerResult, prs.Concurrency)
+	httpClient := http.NewClient()
 	fmt.Println("URL:", prs.URL)
 	fmt.Println("Requests:", prs.Requests)
 	fmt.Println("Concurrency:", prs.Concurrency)
@@ -26,7 +28,7 @@ func main() {
 
 	wg.Add(prs.Concurrency)
 	for i := 0; i < prs.Concurrency; i++ {
-		go worker.Worker(prs.Requests, prs.URL, &wg, cha)
+		go worker.Worker(prs.Requests, prs.URL, &wg, cha, httpClient)
 	}
 
 	go func() {
