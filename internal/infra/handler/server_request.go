@@ -2,14 +2,9 @@ package handler
 
 import (
 	"net/http"
-	"time"
 )
 
-var httpClient = &http.Client{
-	Timeout: 10 * time.Second,
-}
-
-func ServerRequestHandler(url string) (int, error) {
+func ServerRequestHandler(url string, httpClient *http.Client) (int, error) {
 	resp, err := httpClient.Get(url)
 
 	if err != nil {
