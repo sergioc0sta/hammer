@@ -6,13 +6,13 @@ import (
 
 	"github.com/sergioc0sta/hammer/internal/cli"
 	"github.com/sergioc0sta/hammer/internal/dto"
-	"github.com/sergioc0sta/hammer/internal/infra/worker"
 	"github.com/sergioc0sta/hammer/internal/infra/http"
+	"github.com/sergioc0sta/hammer/internal/infra/report"
 	"github.com/sergioc0sta/hammer/internal/infra/timer"
+	"github.com/sergioc0sta/hammer/internal/infra/worker"
 )
 
 func main() {
-	totalRequests := 0
 	var wg sync.WaitGroup
 	prs, err := cli.InsertParameters()
 
@@ -22,10 +22,7 @@ func main() {
 
 	cha := make(chan dto.WorkerResult, prs.Concurrency)
 	httpClient := http.NewClient()
-	fmt.Println("URL:", prs.URL)
-	fmt.Println("Requests:", prs.Requests)
-	fmt.Println("Concurrency:", prs.Concurrency)
-	fmt.Println("Server is starting...")
+	fmt.Println("Server is running...")
 
 	timer := timer.NewTimer()
 	wg.Add(prs.Concurrency)
@@ -38,15 +35,10 @@ func main() {
 		close(cha)
 	}()
 
-	for v := range cha {
-		for _, result := range v.Results {
-			fmt.Printf("Status: %d - Count: %d\n", result.Status, result.Count)
-			totalRequests += result.Count
-		}
-	}
+	loadTest := report.NewReport(cha)
+	loadTest.Collect()
+	loadTest.Print()
 	timer.TimeClose()
 	fmt.Printf("Total time taken: %s\n", timer.Duration)
-
-	fmt.Println("Total requests:", totalRequests)
 
 }
