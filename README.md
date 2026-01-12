@@ -27,7 +27,7 @@ go build -o hammer cmd/main.go
 ### Docker
 
 ```bash
-docker run hammer --url=http://google.com --requests=1000 --concurrency=10
+docker run --name hammer hammer --url=https://httpbin.org/get --requests=1000 --concurrency=10
 ```
 
 ### Binary
@@ -61,23 +61,23 @@ Status code distribution:
 Test a website with 100 requests, 10 at a time:
 
 ```bash
-docker run hammer --url=https://example.com --requests=100 --concurrency=10
+docker run --name hammer hammer --url=https://example.com --requests=100 --concurrency=10
 ```
 
 ### Heavy load test
 Simulate 10,000 requests with high concurrency:
 
 ```bash
-docker run hammer --url=https://api.example.com/health --requests=10000 --concurrency=100
+docker run --name hammer hammer --url=https://api.example.com/health --requests=10000 --concurrency=100
 ```
 ### Single request test
 Test basic connectivity:
 
 ```bash
-docker run hammer --url=https://example.com --requests=1 --concurrency=1
+docker run --name hammer hammer --url=https://example.com --requests=1 --concurrency=1
 ```
 
 ## Building the Docker Image
 ```bash
-docker build -t hammer
+docker build -t hammer .
 ```
