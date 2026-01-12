@@ -37,7 +37,7 @@ func main() {
 
 	loadTest := report.NewReport(cha)
 	loadTest.Collect()
-	loadTest.Print()
+	loadTest.Print(timer.Duration)
 	timer.TimeClose()
 	fmt.Printf("Total time taken: %s\n", timer.Duration)
 
