@@ -1,3 +1,13 @@
+<div align="center">
+  <img
+    width="720"
+    height="720"
+    alt="ChatGPT Image Jan 15, 2026, 09_17_47 PM"
+    src="https://github.com/user-attachments/assets/7b144498-2625-4473-b08b-72348e0bad6e"
+  />
+</div>
+
+
 # Hammer
 A powerful command-line tool written in Go for performing load tests on web services. This tool allows you to test the performance and reliability of any HTTP endpoint by sending concurrent requests and generating detailed reports.
 
